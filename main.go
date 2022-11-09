@@ -37,7 +37,7 @@ func main() {
 
 	go func() {
 		for i := range ch {
-			if err := f.RemoveAll(i); err != nil {
+			if err := removeContents(i); err != nil {
 				log.Error().
 					AnErr("err", err).
 					Msg("delete failed")
@@ -65,6 +65,36 @@ func main() {
 	<-quitChan
 }
 
+func removeContents(dir string) error {
+	d, err := f.Open(dir)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := d.Close(); err != nil {
+			log.Error().
+				AnErr("err", err).
+				Msg("close failed")
+		}
+	}()
+
+	names, err := d.Readdirnames(-1)
+	if err != nil {
+		return err
+	}
+
+	for _, name := range names {
+		if err = f.RemoveAll(filepath.Join(dir, name)); err != nil {
+			log.Error().
+				AnErr("err", err).
+				Msg("remove all failed")
+		}
+	}
+
+	return nil
+}
+
 func removeDirectories(wechatRootDir string) error {
 
 	infos, err := afero.ReadDir(f, wechatRootDir)
@@ -75,7 +105,7 @@ func removeDirectories(wechatRootDir string) error {
 		return err
 	}
 
-	subDirNames := []string{"Image", "Video"}
+	subDirNames := []string{"Image", "Video", "Temp", "MsgAttach", "File", "CustomEmotion", "Cache", "Sns"}
 
 	for _, info := range infos {
 		if info.IsDir() {
