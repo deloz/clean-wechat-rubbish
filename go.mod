@@ -3,7 +3,7 @@ module github.com/deloz/clean-wechat-rubbish
 go 1.19
 
 require (
-	github.com/rs/zerolog v1.28.1-0.20221103003519-5bdc93f7eb6a
+	github.com/rs/zerolog v1.29.0
 	github.com/spf13/afero v1.9.3
 )
 
